@@ -317,6 +317,8 @@ Game2048.prototype.move = function (direction) {
     ////// really just moving right and left because of transposal :)
     if (this.boardHasChanged){
       this._generateTile();
+      //check to see if game is lost.
+      this._isGameLost();
       this.boardHasChanged = false;
     }
 
@@ -332,6 +334,49 @@ Game2048.prototype._upDateScore = function (points) {
   if (points === 2048 ){
     this.hasWon = true;
   }
+};
+
+//Scan possibilities (by scanning whole board by brute force) and see if there are any nulls or merge possibilities
+Game2048.prototype._isGameLost = function () {
+
+  //Meaning, if there is a position available to insert a tile
+  //early return.
+  if (this._getAvailablePosition() !== null){
+    return;
+  }
+
+  //See explanation for theGame variable in moveLeft and moveRight functions.
+  var theGame = this;
+
+  //We've already done this in _getAvailablePosition
+  ////Moves row by row
+  //Note: Goes through the cells and checks the cells around them to see if there is a merge move.
+  /////// We have already screen for nulls with if statement above
+  this.board.forEach(function(row, rowIndex){
+    //Moves col by col for each row
+    row.forEach(function(cell, colIndex){
+
+      var current = theGame.board[rowIndex][cellIndex];
+      var top, bottom, left, right;
+
+      if (theGame.board[rowIndex][cellIndex - 1]) {
+        left  = theGame.board[rowIndex][cellIndex - 1];
+      }
+      if (theGame.board[rowIndex][cellIndex + 1]) {
+        right = theGame.board[rowIndex][cellIndex + 1];
+      }
+      if (theGame.board[rowIndex - 1]) {
+        top    = theGame.board[rowIndex - 1][cellIndex];
+      }
+      if (theGame.board[rowIndex + 1]) {
+        bottom = theGame.board[rowIndex + 1][cellIndex];
+      }
+
+      if (current === top || current === bottom || current === left || current === right)
+      theGame.hasLost = false;
+
+    });
+  });
 };
 
 
