@@ -226,6 +226,43 @@ Game2048.prototype.moveRight = function (){
 };
 
 
+
+// Function to transpose a matrix
+///1.Flip on Y axis
+//2. Turn 90 degrees counter clockwise.
+Game2048.prototype._transposeMatrix = function () {
+  for (var row = 0; row < this.board.length; row++) {
+    for (var column = row+1; column < this.board.length; column++) {
+      var temp = this.board[row][column];
+      this.board[row][column] = this.board[column][row];
+      this.board[column][row] = temp;
+    }
+  }
+};
+
+
+//Function to move up on the 2D array
+//Achieved by doing transposal.
+Game2048.prototype.moveUp = function () {
+  this._transposeMatrix();
+  this.moveLeft();
+  this._transposeMatrix(); // Important to transpose again to restore to original orientation
+};
+
+//Function to move down on the 2D array
+//Achieved by doing transposal.
+Game2048.prototype.moveDown = function () {
+  this._transposeMatrix();
+  this.moveRight();
+  this._transposeMatrix(); // Important to transpose again to restore to original orientation
+};
+
+
+
+
+
+
+
 //New instance of game created upon start of game
 danielsGame = new Game2048();
 
