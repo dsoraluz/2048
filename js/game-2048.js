@@ -16,6 +16,7 @@ function Game2048(name){
 
   this.hasWon = false;    //Boolean to check if game has been won. //
   this.hasLost = false;   //Boolean to check if game has been lost. //is checked on each move
+  this.boardHasChanged = false; //Boolean to check if the boardHasChanged (due to a merge and/or shift)
 
   this._generateTile();
   this._generateTile();
@@ -101,6 +102,9 @@ Game2048.prototype._renderBoard = function () {
   this.board.forEach(function(row) {
     console.log(row);
    });
+
+   //Log to see the current runnning score.
+   console.log('Current score: ' + this.score);
 };
 
 // Function for move left
@@ -110,6 +114,9 @@ Game2048.prototype._renderBoard = function () {
 Game2048.prototype.moveLeft = function (){
 
   var updatedBoard = [];
+
+  //Done because as soon as you call 'this' from an anonymous function, the context of this changes and when you are checking the boardHasChanged, it refers to wrong version of board.
+  var theGame = this;
 
   this.board.forEach(function(row){
     //At end, new row will only be numbers that are in that row
@@ -132,6 +139,9 @@ Game2048.prototype.moveLeft = function (){
       if (newRow[i] === newRow[i + 1]){
         newRow[i] *=2;
         newRow[i + 1] = null;
+
+        //Score is updated each time a merge happems
+        theGame._upDateScore(newRow[i]);
       }
     }
 
@@ -148,10 +158,17 @@ Game2048.prototype.moveLeft = function (){
     });
 
 
+    //This checks for a merge and/shift.
+    //Note: it is 'theGame' not 'this' because of stated above. *See theGame declaration.
+    if (moved.length !== row.lentgth){
+      theGame.boardHasChanged = true;
+    }
+
     // 4. push() nulls until row has length of 4 again.
     while (moved.length < 4){
       moved.push(null);
     }
+
 
     //Pushing new row to udapted board
     //At end of loop, updatedBoard will have rows with new rows after move
@@ -170,6 +187,10 @@ Game2048.prototype.moveLeft = function (){
 Game2048.prototype.moveRight = function (){
 
   var updatedBoard = [];
+
+  //Done because as soon as you call 'this' from an anonymous function, the context of this changes and when you are checking the boardHasChanged.
+  //note: 'this' inside of the anonymous function does not have a variable boardHasChanged, board wouldbe referring to board which is a property itself, not the object the game.
+  var theGame = this;
 
   this.board.forEach(function(row){
     //At end, new row will only be numbers that are in that row
@@ -193,6 +214,9 @@ Game2048.prototype.moveRight = function (){
       if (newRow[i] === newRow[i - 1]){
         newRow[i] *=2;
         newRow[i - 1] = null;
+
+        //Score is updated each time a merge happens
+        theGame._upDateScore(newRow[i]);
       }
     }
 
@@ -208,12 +232,19 @@ Game2048.prototype.moveRight = function (){
       }
     });
 
+    //This checks for a merge and/shift.
+    //Note: it is 'theGame' not 'this' because of stated above. *See theGame declaration.
+    if (moved.length !== row.lentgth){
+      theGame.boardHasChanged = true;
+    }
+
 
     // 4. unshift() (insert at beginning) nulls until row has length of 4 again.
     //note: it changes from a push() (inserting nulls at end when moving left) to unshift() (inserting nulls at begining when moving right)
     while (moved.length < 4){
       moved.unshift(null);
     }
+
 
     //Pushing new row to udapted board
     //At end of loop, updatedBoard will have rows with new rows after move
@@ -258,9 +289,57 @@ Game2048.prototype.moveDown = function () {
 };
 
 
+Game2048.prototype.move = function (direction) {
+
+  //Early return to break the function.
+  //Checks if the game has been won or lost.
+  //hasWon has to be true or hasLost has to be true.
+  if (this.hasWon || this.hasLost) {
+    return;
+  }
+    switch (direction) {
+      case "up":
+        this.moveUp();
+        break;
+      case "down":
+        this.moveDown();
+        break;
+      case "left":
+        this.moveLeft();
+        break;
+      case "right":
+       this.moveRight();
+       break;
+    }
+
+    //So when you make a movement, it adds a tile given there is a merge or shift in the array.
+    //note: boardHasChanged will be when ever there us a move in either direction.
+    ////// really just moving right and left because of transposal :)
+    if (this.boardHasChanged){
+      this._generateTile();
+      this.boardHasChanged = false;
+    }
+
+};
+
+//Keep track of merges.]
+//Fired off each time there is a merge of tiles ]
+// *hint: Look in the for loop in moveLeft and moveRight.
+Game2048.prototype._upDateScore = function (points) {
+  this.score += points;
+
+  //Conditions
+  if (points === 2048 ){
+    this.hasWon = true;
+  }
+};
 
 
 
+// Easter win to win. ^ ([][][][][]) ^
+// Game2048.prototype.______shhhhhh = function(){
+//   this.hasWon = true;
+// };
 
 
 //New instance of game created upon start of game
