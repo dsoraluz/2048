@@ -97,10 +97,77 @@ Game2048.prototype._getAvailablePosition = function(){
 //Renders the board in the console
 //Only need one loop to render the array in the console because each row is an array so log(array) lists it in console
 Game2048.prototype._renderBoard = function () {
+
   this.board.forEach(function(row) {
     console.log(row);
    });
 };
 
+// Function for move left
+// Easiest way is to recreate the array.
+// if tiles have the same value, FIRST: the tiles will merge (add), SECOND: then move as far left as possible... nulls will be pushed in the empty spaces that are created
+//Behind the scenes the previous board is discarded and a new one is created based on move.
+Game2048.prototype.moveLeft = function (){
 
+  var updatedBoard = [];
+
+  this.board.forEach(function(row){
+    //At end, new row will only be numbers that are in that row
+    var newRow=[];
+    // 1. Remove empties from row
+    // --> For each row, scan coloumns
+    //at the end you will get 4 new rows that are based on state of row before move.
+    row.forEach(function(cell){
+
+      //This will give the new row with everything shifted left.
+      if (cell !== null){
+        newRow.push(cell);
+      }
+    });
+    // 2. Merge tiles in row that are together and the same numbers
+    // --> Loop through new row (now reflecting everythind shifted left) ( meaning that rows of 4 can now be 3,)
+    // --> If the current col (i) is the same as the one next to it (i+1), add (really multiply times 2) the numbers and set (i+1) to null
+    //--> note: This step an result in a empty space in the middle of two numbers
+    for (var i = 0; i < newRow.length; i++){
+      if (newRow[i] === newRow[i + 1]){
+        newRow[i] *=2;
+        newRow[i + 1] = null;
+      }
+    }
+
+    //3. Remove new empties that could have been created by merege
+    //Check for nulls again. Repeat step 1.
+    // e.g. when [8, 8, 4] results in [16, null, 4]
+    // we want to end up with [16,4].
+    // note: A new array is created (moved) just like in step 1
+    var moved = [];
+    newRow.forEach(function(cell){
+      if (cell !== null){
+      moved.push(cell);
+      }
+    });
+
+
+    // 4. push() nulls until row has length of 4 again.
+    while (moved.length < 4){
+      moved.push(null);
+    }
+
+    //Pushing new row to udapted board
+    //At end of loop, updatedBoard will have rows with new rows after move
+    updatedBoard.push(moved);
+
+  });
+
+  //Assign new updated board to board of game.
+  this.board = updatedBoard;
+};
+
+//New instance of game created upon start of game
 danielsGame = new Game2048();
+
+// danielsGame._renderBoard();
+//
+// danielsGame.moveLeft();
+//
+// danielsGame._renderBoard();
