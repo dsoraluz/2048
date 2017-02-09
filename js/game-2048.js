@@ -95,8 +95,10 @@ Game2048.prototype._getAvailablePosition = function(){
 };
 
 //Renders the board in the console
+//Only need one loop to render the array in the console because each row is an array so log(array) lists it in console
 Game2048.prototype._renderBoard = function () {
-  this.board.forEach(function(row){ console.log(row);
+  this.board.forEach(function(row) {
+    console.log(row);
    });
 };
 
