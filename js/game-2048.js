@@ -291,6 +291,8 @@ Game2048.prototype.moveDown = function () {
 
 Game2048.prototype.move = function (direction) {
 
+  ion.sound.play('snap'); // sound everytime we move
+
   //Early return to break the function.
   //Checks if the game has been won or lost.
   //hasWon has to be true or hasLost has to be true.
@@ -328,6 +330,8 @@ Game2048.prototype.move = function (direction) {
 //Fired off each time there is a merge of tiles ]
 // *hint: Look in the for loop in moveLeft and moveRight.
 Game2048.prototype._upDateScore = function (points) {
+  ion.sound.play('tap'); // Sound for a merge
+
   this.score += points;
 
   //Conditions
@@ -354,7 +358,7 @@ Game2048.prototype._isGameLost = function () {
   /////// We have already screen for nulls with if statement above
   this.board.forEach(function(row, rowIndex){
     //Moves col by col for each row
-    row.forEach(function(cell, colIndex){
+    row.forEach(function(cell, cellIndex){
 
       var current = theGame.board[rowIndex][cellIndex];
       var top, bottom, left, right;
@@ -373,7 +377,7 @@ Game2048.prototype._isGameLost = function () {
       }
 
       if (current === top || current === bottom || current === left || current === right)
-      theGame.hasLost = false;
+      theGame.hasLost = true;
 
     });
   });
